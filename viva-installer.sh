@@ -1,5 +1,4 @@
 #!/bin/bash
-# Run this script as root using 'chmod +x viva-installer.sh && exec ./viva-installer.sh'
 
 # ----------------------------
 # Constants
