@@ -32,7 +32,7 @@ function create_user_and_group() {
     useradd ${VIVA_USER} --shell /bin/bash --create-home          # Create user
     echo "${VIVA_USER}:${VIVA_PASSWORD}" | chpasswd               # Modify password
     usermod --append -G ${VIVA_GROUP} ${VIVA_USER}                # Add user to group
-    echo "${VIVA_GROUP} ALL=(ALL) ALL" | EDITOR='tee -a' visudo   # Add group to sudoers (allow root access)
+    echo "${VIVA_GROUP} ALL=(ALL) NOPASSWD: ALL" | EDITOR='tee -a' visudo   # Add group to sudoers (allow root access)
   fi
 }
 
