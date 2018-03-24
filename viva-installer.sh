@@ -29,10 +29,12 @@ function apt_enable_progress_bar() {
 }
 
 function create_user_and_group() {
-  useradd ${VIVA_USER} --shell /bin/bash --create-home          # Create user
-  echo "${VIVA_USER}:${VIVA_PASSWORD}" | chpasswd               # Modify password
-  usermod --append -G ${VIVA_GROUP} ${VIVA_USER}                # Add user to group
-  echo '${VIVA_GROUP} ALL=(ALL) ALL' | EDITOR='tee -a' visudo   # Add group to sudoers (allow root access)
+  if ! id -u vivaa &> /dev/null; then                             # Only is user does not exist
+    useradd ${VIVA_USER} --shell /bin/bash --create-home          # Create user
+    echo "${VIVA_USER}:${VIVA_PASSWORD}" | chpasswd               # Modify password
+    usermod --append -G ${VIVA_GROUP} ${VIVA_USER}                # Add user to group
+    echo "${VIVA_GROUP} ALL=(ALL) ALL" | EDITOR='tee -a' visudo   # Add group to sudoers (allow root access)
+  fi
 }
 
 function install_packages() {
@@ -46,7 +48,7 @@ function install_viva() {
   cp -r ${temp_dir}/viva/platform/* ${INSTALL_LOCATION}    # Copy some files to the install location
   chown -R ${VIVA_USER}:${VIVA_GROUP} ${INSTALL_LOCATION}  # Change the owner
   chmod -R 755 ${INSTALL_LOCATION}                         # Set permissions
-  echo 'export "PATH=${PATH}:${INSTALL_LOCATION}"' >> /home/${VIVA_USER}/.bashrc # Make command available
+  echo "export 'PATH=${PATH}:${INSTALL_LOCATION}'" >> /home/${VIVA_USER}/.bashrc # Make command available
 }
 
 
