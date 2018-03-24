@@ -1,0 +1,3 @@
+# How to use
+
+See: https://kig.re/2014/12/31/how-to-use-arduino-nano-mini-pro-with-CH340G-on-mac-osx-yosemite.html
