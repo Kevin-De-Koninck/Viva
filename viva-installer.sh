@@ -70,4 +70,11 @@ install_packages
 install_viva
 
 # log out, user should use 'Viva' now instead of root
-exit
+clear
+echo "1. Viva has been installed on your system."
+echo "2. User '${VIVA_USER}' has been created with sudo permissions."
+echo "3. Continue as user '${VIVA_USER}' and start the installation using 'viva install'."
+echo
+echo "The script will nog log you out, please log back in as user '${VIVA_USER}'."
+read -n 1 -s -r -p "Press any key to continue..."
+logout
