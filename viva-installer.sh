@@ -46,7 +46,7 @@ function install_viva() {
   cp -r ${temp_dir}/viva/platform/* ${INSTALL_LOCATION}    # Copy some files to the install location
   chown -R ${VIVA_USER}:${VIVA_GROUP} ${INSTALL_LOCATION}  # Change the owner
   chmod -R 755 ${INSTALL_LOCATION}                         # Set permissions
-  echo 'export "PATH=${PATH}:${INSTALL_LOCATION}"' >> /home${VIVA_USER}/.bashrc # Make command available
+  echo 'export "PATH=${PATH}:${INSTALL_LOCATION}"' >> /home/${VIVA_USER}/.bashrc # Make command available
 }
 
 
