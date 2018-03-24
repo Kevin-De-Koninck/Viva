@@ -37,7 +37,9 @@ function create_user_and_group() {
 }
 
 function install_packages() {
-  apt install -y git
+  apt install -y git python python-pip
+  export LC_ALL=C
+  pip install -y ipdb
 }
 
 function install_viva() {

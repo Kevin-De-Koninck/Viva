@@ -1,0 +1,83 @@
+#!/usr/bin/python
+
+import argparse
+import logging
+import sys
+import pwd
+import os
+import signal
+
+from viva_helpers.constants import RC
+
+from viva_helpers.installer import Install
+
+
+
+TOOL_DESCRIPTION = '''Viva Configuration Utility.
+This tool can be used to perform configuration and management of the Viva system.'''
+TOOL_EPILOG = '''Use 'viva <command> --help' to get more information about a specific command.'''
+
+
+# Exit gracefully on interrupt
+def signal_handler(signal, frame):
+  print ""
+  sys.exit(1)
+
+
+def check_user():
+  # If this was not run as root, run this with root privelages
+  if os.geteuid() != 0:
+    os.execvp("sudo", ["sudo"] + sys.argv)
+
+
+def get_actions():
+  actions = [
+    Install(),
+  ]
+  return actions
+
+
+def handle_command(args, actions):
+  for action in actions:
+    rc = action.handle_command(args)
+    if rc != RC.UNKNOWN_COMMAND:
+      return rc
+  return RC.UNKNOWN_COMMAND
+
+
+def parse_args(actions):
+  common_parser = argparse.ArgumentParser(add_help=False)
+  parser = argparse.ArgumentParser(description=TOOL_DESCRIPTION, epilog=TOOL_EPILOG, parents=[common_parser])
+  subparsers = parser.add_subparsers(dest="command", title="Supported commands")
+  for req in set(actions):
+    req.add_arguments(common_parser, subparsers)
+  return parser, parser.parse_args()
+
+
+def main(actions=None):
+  success = False
+
+  # Exit gracefully on interrupt
+  signal.signal(signal.SIGINT, signal_handler)
+  signal.signal(signal.SIGHUP, signal_handler)
+  signal.signal(signal.SIGTERM, signal_handler)
+
+  # Make sure we're root
+  check_user()
+
+  # Parse the command
+  actions = get_actions() if actions is None else actions
+  parser, args = parse_args(actions)
+
+  # Handle the command
+  rc = handle_command(args, actions)
+
+  # Show usage if command is unknown
+  if rc == RC.UNKNOWN_COMMAND:
+    parser.print_usage()
+    return RC.FAILED
+  return rc
+
+
+if __name__ == "__main__":
+    sys.exit(main())

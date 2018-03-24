@@ -1,0 +1,4 @@
+class RC:
+  UNKNOWN_COMMAND = -1
+  SUCCESS = 0
+  FAILED = 1
