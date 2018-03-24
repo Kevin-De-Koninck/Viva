@@ -15,7 +15,7 @@ class Install:
     # vdcm-configure user
     epilog = ""
     parser = subparsers.add_parser("install",
-                                    description="Configure the vDCM's default user configuration.",
+                                    description="Install viva.",
                                     epilog=epilog, parents=[common_parser])
 
     parser.add_argument("--test", action="store_true", help="Test the framework")
