@@ -1,14 +1,17 @@
-from constants import RC
 from logger import Logger
+from command import Command
 
 
-class Install:
+class Install(Command):
+  def log(self, level, message):
+    Logger(logfile=Logger.VIVA, tag="install", level=level, message=message)
+
   def handle_command(self, args):
     if args.command != "install":
-      return RC.UNKNOWN_COMMAND
+      return self.UNKNOWN_COMMAND
 
     if args.test:
-      Logger(Logger.INFO, "WOOHOOOOOOO")
+      self.log(Logger.INFO, "WOOHOOOOOOO")
 
 
   def add_arguments(self, common_parser, subparsers):

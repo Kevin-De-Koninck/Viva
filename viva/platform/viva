@@ -7,7 +7,8 @@ import pwd
 import os
 import signal
 
-from viva_helpers.constants import RC
+from viva_helpers.command import Command
+from viva_helpers.constants import Constants
 
 from viva_helpers.installer import Install
 
@@ -40,9 +41,9 @@ def get_actions():
 def handle_command(args, actions):
   for action in actions:
     rc = action.handle_command(args)
-    if rc != RC.UNKNOWN_COMMAND:
+    if rc != Command.UNKNOWN_COMMAND:
       return rc
-  return RC.UNKNOWN_COMMAND
+  return Command.UNKNOWN_COMMAND
 
 
 def parse_args(actions):
@@ -73,9 +74,9 @@ def main(actions=None):
   rc = handle_command(args, actions)
 
   # Show usage if command is unknown
-  if rc == RC.UNKNOWN_COMMAND:
+  if rc == Command.UNKNOWN_COMMAND:
     parser.print_usage()
-    return RC.FAILED
+    return Command.FAILED
   return rc
 
 
