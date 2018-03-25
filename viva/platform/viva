@@ -10,7 +10,7 @@ import signal
 from viva_helpers.command import Command
 from viva_helpers.constants import Constants
 
-from viva_helpers.installer import Install
+from viva_helpers.system import System
 
 
 
@@ -33,7 +33,7 @@ def check_user():
 
 def get_actions():
   actions = [
-    Install(),
+    System(),
   ]
   return actions
 
