@@ -25,14 +25,15 @@ class Logger:
   TERRARIUM = Constants.Paths.LOG_TERRARIUM
   VIVA = Constants.Paths.LOG_VIVA
 
-  def __init__(self, logfile, tag, level, message, terminal_print=True):
+  def __init__(self, logfile, tag, level, message, terminal_print=True, write_logs=True):
     self.level = level if level in [self.ERROR, self.WARNING, self.SUCCESS, self.INFO] else self.INFO
     self.message = message
     self.logfile = logfile if logfile in [self.REPTILE, self.VIVA, self.TERRARIUM] else self.VIVA
     self.tag = str(tag)
     if terminal_print:
       self.terminal_print()
-    self.write_logs()
+    if write_logs:
+      self.write_logs()
 
   def terminal_print(self):
     message = "[%s] %s" % (str(self.level), str(self.message))
