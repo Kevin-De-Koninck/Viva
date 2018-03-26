@@ -8,7 +8,7 @@ class Command:
 
   # usage: excecute("ls", "-l")
   @staticmethod
-  def execute(self, *command):
+  def execute(*command):
     try:
       # Get stdout and stderr
       output = subprocess.check_output(list(command), stderr=subprocess.STDOUT)
