@@ -7,8 +7,8 @@ import pwd
 import os
 import signal
 
+from viva_helpers.logger import Logger
 from viva_helpers.command import Command
-from viva_helpers.constants import Constants
 
 from viva_helpers.system import System
 
@@ -81,4 +81,7 @@ def main(actions=None):
 
 
 if __name__ == "__main__":
+  try:
     sys.exit(main())
+  except Exception as e:
+    Logger(Logger.VIVA, "system", Logger.ERROR, "Uncaught exception: %s." % str(e))
