@@ -1,4 +1,5 @@
 import subprocess
+from logger import Logger
 
 class Command:
   SUCCESS = 0
@@ -9,6 +10,7 @@ class Command:
   # usage: excecute("ls", "-l")
   @staticmethod
   def execute(*command):
+    Logger(Logger.VIVA, "system", Logger.INFO, "Now executing command: %s" % str(" ".join(command)), terminal_print=False)
     try:
       # Get stdout and stderr
       output = subprocess.check_output(list(command), stderr=subprocess.STDOUT)
