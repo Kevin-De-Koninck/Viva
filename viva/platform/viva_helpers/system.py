@@ -34,7 +34,7 @@ class System(Command):
         with open(config_file.filename, "w+") as f:
           f.write(config_file.content)
       except Exception as e:
-        self.log(Logger.ERROR, "An error occured while writing to '%s': %s" % (config_file.filename, str(e)))
+        self.log(Logger.ERROR, "An error occurred while writing to '%s': %s" % (config_file.filename, str(e)))
         return self.FAILED
 
     self.log(Logger.SUCCESS, "Successfully configured automatic system upgrades.")
