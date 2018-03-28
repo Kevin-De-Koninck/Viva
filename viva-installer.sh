@@ -49,7 +49,16 @@ function install_viva() {
   cp -r ${temp_dir}/viva/platform/* ${INSTALL_LOCATION}    # Copy some files to the install location
   chown -R ${VIVA_USER}:${VIVA_GROUP} ${INSTALL_LOCATION}  # Change the owner
   chmod -R 755 ${INSTALL_LOCATION}                         # Set permissions
-  echo "export 'PATH=${PATH}:${INSTALL_LOCATION}'" >> /home/${VIVA_USER}/.bashrc # Make command available
+  echo "export 'PATH=${PATH}:${INSTALL_LOCATION}:${INSTALL_LOCATION}/bash_scripts'" >> /home/${VIVA_USER}/.bashrc # Make command available
+}
+
+function fix_locale_ssh_warnings() {
+  locale-gen en_US.UTF-8
+  sed -i '/LANG LC_*/d' /etc/ssh/ssh_config
+  sed -i '/LANG LC_*/d' /etc/ssh/sshd_config
+  update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
+  service ssh reload
+
 }
 
 
@@ -62,6 +71,9 @@ check_root
 
 # Enable a fancy progress bar when using apt
 apt_enable_progress_bar
+
+# solve some anoying errors that start with 'perl: warning: Setting locale failed.'
+fix_locale_ssh_warnings
 
 # Create the new user and group and assign root access
 create_user_and_group
