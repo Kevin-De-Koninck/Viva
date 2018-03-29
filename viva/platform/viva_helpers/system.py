@@ -1,4 +1,5 @@
 import os
+import pexpect
 from constants import Constants
 from logger import Logger
 from command import Command
@@ -16,13 +17,32 @@ class System(Command):
 
   def install_or_update_LEMP(self, args):
     # Set the root password for unattended install of MySQL
-    os.system('echo "mysql-server mysql-server/root_password password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_ROOT_PWD))
-    os.system('echo "mysql-server mysql-server/root_password_again password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_ROOT_PWD))
+    os.system('echo "mysql-server mysql-server/root_password password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_ROOT_PWD)
+    os.system('echo "mysql-server mysql-server/root_password_again password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_ROOT_PWD)
 
     # Install MySQL
     if self.execute("apt install -y mysql-server php-mysql libmysqlclient-dev").failed:
       return self.FAILED
     self.log(Logger.SUCCESS, "Successfully installed/updated MySQL.")
+
+    # Secure MySQL
+    self.log(Logger.INFO, "Securing the MySQL installation.")
+    p = pexpect.spawn('mysql_secure_installation')
+    p.expect('Enter password for user root:')
+    p.sendline(Constants.LEMP.MYSQL_ROOT_PWD)
+    p.expect('Press y|Y for Yes, any other key for No:')
+    p.sendline('')
+    p.expect('Change the password for root ?')
+    p.sendline('')
+    p.expect('Remove anonymous users?')
+    p.sendline('y')
+    p.expect('Disallow root login remotely?')
+    p.sendline('y')
+    p.expect('Remove test database and access to it?')
+    p.sendline('y')
+    p.expect('Reload privilege tables now?')
+    p.sendline('y')
+    self.log(Logger.SUCCESS, "Successfully secured the MySQL installation.")
 
     # Install NginX
     for command in ["apt install -y nginx", "service nginx start"]:
