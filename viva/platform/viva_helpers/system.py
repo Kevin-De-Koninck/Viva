@@ -16,6 +16,8 @@ class System(Command):
     return rc
 
   def install_or_update_LEMP(self, args):
+    rc = self.SUCCESS
+
     # Set the root password for unattended install of MySQL
     os.system('echo "mysql-server mysql-server/root_password password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_ROOT_PWD)
     os.system('echo "mysql-server mysql-server/root_password_again password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_ROOT_PWD)
@@ -27,22 +29,22 @@ class System(Command):
 
     # Secure MySQL
     self.log(Logger.INFO, "Securing the MySQL installation.")
-    p = pexpect.spawn('mysql_secure_installation')
-    p.expect('Enter password for user root:')
-    p.sendline(Constants.LEMP.MYSQL_ROOT_PWD)
-    p.expect('Press y|Y for Yes, any other key for No:')
-    p.sendline('')
-    p.expect('Change the password for root ?')
-    p.sendline('')
-    p.expect('Remove anonymous users?')
-    p.sendline('y')
-    p.expect('Disallow root login remotely?')
-    p.sendline('y')
-    p.expect('Remove test database and access to it?')
-    p.sendline('y')
-    p.expect('Reload privilege tables now?')
-    p.sendline('y')
-    self.log(Logger.SUCCESS, "Successfully secured the MySQL installation.")
+    secure_mysql = {'Enter password for user root:': Constants.LEMP.MYSQL_ROOT_PWD,
+                    'Press y|Y for Yes, any other key for No:': '',
+                    'Change the password for root ?': '',
+                    'Remove anonymous users?': 'y',
+                    'Disallow root login remotely?': 'y',
+                    'Remove test database and access to it?': 'y',
+                    'Reload privilege tables now?': 'y'}
+    try:
+      p = pexpect.spawn('mysql_secure_installation')
+      for question, answer in secure_mysql.iteritems():
+        p.expect(question, timeout=5)
+        p.sendline(answer)
+      self.log(Logger.SUCCESS, "Successfully secured the MySQL installation.")
+    except Exception as e:
+      self.log(Logger.ERROR, "An error occurred while securing the MySQL installation: %e." % str(e))
+      rc |= self.FAILED
 
     # Install NginX
     for command in ["apt install -y nginx", "service nginx start"]:
@@ -92,13 +94,7 @@ class System(Command):
 
     # DONE
     self.log(Logger.SUCCESS, "Successfully installed/updated LEMP (PHPMyAdmin on port %d)." % NginX.sites_available_default.PHPMyAdmin_port)
-
-
-
-
-
-
-    return self.SUCCESS
+    return rc
 
   def install_or_update_viva_framework(self):
     return self.SUCCESS
