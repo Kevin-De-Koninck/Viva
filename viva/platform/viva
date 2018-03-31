@@ -8,7 +8,9 @@ import os
 import signal
 
 from viva_helpers.logger import Logger
+
 from viva_helpers.command import Command
+from viva_helpers.data import Data
 
 from viva_helpers.system import System
 
@@ -34,6 +36,7 @@ def check_user():
 def get_actions():
   actions = [
     System(),
+    Data()
   ]
   return actions
 
