@@ -1,3 +1,5 @@
+from constants import Constants
+
 class Unattended_upgrades:
   class Unattended_upgrades:
     filename = "/etc/apt/apt.conf.d/50unattended-upgrades"
@@ -27,7 +29,7 @@ APT::Periodic::Download-Upgradeable-Packages "1";
 class NginX:
   class sites_available_default:
     filename = "/etc/nginx/sites-available/default"
-    PHPMyAdmin_port = 9999
+    PHPMyAdmin_port = Constants.LEMP.PHPMYADMIN_PORT
     content = """
 server {
      listen 80;

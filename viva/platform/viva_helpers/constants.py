@@ -6,7 +6,12 @@ class Constants:
     USER = "viva"
 
   class LEMP:
-    MYSQL_ROOT_PWD = "VivaMySQL"
+    MYSQL_PWD = "VivaMySQL"
+    MYSQL_USERNAME = "root"
+    MYSQL_PORT = 3306
+    MYSQL_DATABASE = "viva"
+
+    PHPMYADMIN_PORT = 9999
 
 
   class Paths:
