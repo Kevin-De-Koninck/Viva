@@ -19,17 +19,17 @@ class System(Command):
     rc = self.SUCCESS
 
     # Set the root password for unattended install of MySQL
-    os.system('echo "mysql-server mysql-server/root_password password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_ROOT_PWD)
-    os.system('echo "mysql-server mysql-server/root_password_again password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_ROOT_PWD)
+    os.system('echo "mysql-server mysql-server/root_password password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_PWD)
+    os.system('echo "mysql-server mysql-server/root_password_again password %s" | debconf-set-selections' % Constants.LEMP.MYSQL_PWD)
 
     # Install MySQL
-    if self.execute("apt install -y mysql-server php-mysql libmysqlclient-dev").failed:
+    if self.execute("apt install -y mysql-server php-mysql libmysqlclient-dev python-mysqldb").failed:
       return self.FAILED
     self.log(Logger.SUCCESS, "Successfully installed/updated MySQL.")
 
     # Secure MySQL
     self.log(Logger.INFO, "Securing the MySQL installation.")
-    secure_mysql = {'Enter password for user root:': Constants.LEMP.MYSQL_ROOT_PWD,
+    secure_mysql = {'Enter password for user root:': Constants.LEMP.MYSQL_PWD,
                     'Press y|Y for Yes, any other key for No:': '',
                     'Change the password for root ?': '',
                     'Remove anonymous users?': 'y',
@@ -77,9 +77,9 @@ class System(Command):
 
     # Install PHPMyAdmin
     for command in ['echo "phpmyadmin phpmyadmin/dbconfig-install boolean true" | debconf-set-selections',
-                    'echo "phpmyadmin phpmyadmin/app-password-confirm password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_ROOT_PWD),
-                    'echo "phpmyadmin phpmyadmin/mysql/admin-pass password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_ROOT_PWD),
-                    'echo "phpmyadmin phpmyadmin/mysql/app-pass password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_ROOT_PWD),
+                    'echo "phpmyadmin phpmyadmin/app-password-confirm password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_PWD),
+                    'echo "phpmyadmin phpmyadmin/mysql/admin-pass password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_PWD),
+                    'echo "phpmyadmin phpmyadmin/mysql/app-pass password %s" | debconf-set-selections' % str(Constants.LEMP.MYSQL_PWD),
                     'echo "phpmyadmin phpmyadmin/reconfigure-webserver multiselect" | debconf-set-selections']:
       os.system(command)
 
@@ -91,6 +91,16 @@ class System(Command):
 
     # set an info page
     os.system('echo "<?php phpinfo(); ?>" > /usr/share/nginx/html/info.php')
+
+    # Create the MySQL database
+    try:
+      p = pexpect.spawn("mysql -u root -p -e 'CREATE DATABASE %s;'" % Constants.LEMP.MYSQL_DATABASE)
+      p.expect("Enter password:", timeout=5)
+      p.sendline(Constants.LEMP.MYSQL_PWD)
+      self.log(Logger.SUCCESS, "Successfully created the Viva database on MySQL.")
+    except Exception as e:
+      self.log(Logger.ERROR, "An error occurred while creating the Viva database on MySQL: %e." % str(e))
+      rc |= self.FAILED
 
     # DONE
     self.log(Logger.SUCCESS, "Successfully installed/updated LEMP (PHPMyAdmin on port %d)." % NginX.sites_available_default.PHPMyAdmin_port)

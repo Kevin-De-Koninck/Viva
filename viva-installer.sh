@@ -37,9 +37,9 @@ function create_user_and_group() {
 }
 
 function install_packages() {
-  apt install -y git python python-pip
+  apt install -y git python python-pip python-mysqldb
   export LC_ALL=C
-  pip install -y ipdb
+  pip install -y ipdb MySQL-python sqlalchemy
 }
 
 function install_viva() {
@@ -58,7 +58,6 @@ function fix_locale_ssh_warnings() {
   sed -i '/LANG LC_*/d' /etc/ssh/sshd_config
   update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
   service ssh reload
-
 }
 
 
