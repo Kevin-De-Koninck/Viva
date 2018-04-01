@@ -34,7 +34,8 @@ class SQL:
     if not self.engine.dialect.has_table(self.engine, table_name):
       metadata = MetaData(self.engine)
       Table(table_name, metadata, Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True), 
-            Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now), Column('Vivarium_id', Integer),
+            Column('Timestamp', DateTime, nullable=False),
+            Column('Vivarium_id', Integer),
             Column('What', Text),
             Column('Location', Text),
             Column('Value', Float))
@@ -129,16 +130,22 @@ class SQL:
     self.session.add_all(records)
     self.session.commit()
 
+  def save(self):
+    self.session.commit()
+
   # Usage: get_all_records(Tables.Sensors)
   def get_all_records(self, table):
     return self.session.query(table).all()
 
   # Usage: query(Table.Sensors, what="Temperature")
   def query(self, table, **kwargs):
-    return self.session.query(table).filter_by(**kwargs)
+    return self.session.query(table).filter_by(**kwargs).first()
+
+  def query_all(self, table, **kwargs):
+    return self.session.query(table).filter_by(**kwargs).all()
 
   def delete_records(self, table, **kwargs):
-    records_to_delete = self.session.query(table).filter_by(**kwargs)
+    records_to_delete = self.session.query(table).filter_by(**kwargs).all()
     for record in records_to_delete:
       self.session.delete(record)
     self.session.commit()
@@ -146,121 +153,127 @@ class SQL:
   # ToDo: https://stackoverflow.com/questions/17868743/doing-datetime-comparisons-in-filter-sqlalchemy
 
 
-
+Base = declarative_base()
 class Tables:
-  Base = declarative_base()
+
+  # Deprecated
+  def get(self, arg):
+    try:
+        return eval("self.%s" % arg)
+    except:
+      return None
+
+class Sensors(Tables, Base):
+  __tablename__ = 'Sensors'
+
+  id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
+  timestamp = Column('Timestamp', DateTime, nullable=False)
+  vivarium_id = Column('Vivarium_id', Integer)
+  what = Column('What', Text)
+  location =  Column('Location', Text)
+  value = Column('Value', Float)
+
+  def __init__(self, timestamp=datetime.now(), vivarium_id=None, what=None, location=None, value=None):
+    self.timestamp = timestamp
+    self.vivarium_id = vivarium_id
+    self.what = what
+    self.location = location
+    self.value = value
 
 
-  class Sensors(Base):
-    __tablename__ = 'Sensors'
+class Vivarium(Tables, Base):
+  __tablename__ = 'Vivarium'
 
-    id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
-    vivarium_id = Column('Vivarium_id', Integer)
-    what = Column('What', Text)
-    location =  Column('Location', Text)
-    value = Column('Value', Float)
+  id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
+  name = Column('Name', Text)
+  height = Column('Height', Float)
+  width = Column('Width', Float)
+  depth =  Column('Depth', Float)
+  picture = Column('Picture', Text)
 
-    def __init__(self, vivarium_id=None, what=None, location=None, value=None):
-      self.vivarium_id = int(vivarium_id)
-      self.what = str(what)
-      self.location = str(location)
-      self.value = float(value)
-
-
-  class Vivarium(Base):
-    __tablename__ = 'Vivarium'
-
-    id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    name = Column('Name', Text)
-    height = Column('Height', Float)
-    width = Column('Width', Float)
-    depth =  Column('Depth', Float)
-    picture = Column('Picture', Text)
-
-    def __init__(self, name=None, height=None, width=None, depth=None, picture=None):
-      self.name = str(name)
-      self.height = float(height)
-      self.width = float(width)
-      self.depth = float(depth)
-      self.picture = str(picture)
+  def __init__(self, name=None, height=None, width=None, depth=None, picture=None):
+    self.name = name
+    self.height = height
+    self.width = width
+    self.depth = depth
+    self.picture = picture
 
 
-  class Animal(Base):
-    __tablename__ = 'Animal'
+class Animal(Tables, Base):
+  __tablename__ = 'Animal'
 
-    id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    name = Column('Name', Text)
-    vivarium_id = Column('Vivarium_id', Integer)
-    species = Column('Species', Text)
-    morph =  Column('Morph', Text)
-    dob = Column('Dob', Text)
-    picture = Column('Picture', Text)
+  id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
+  name = Column('Name', Text)
+  vivarium_id = Column('Vivarium_id', Integer)
+  species = Column('Species', Text)
+  morph =  Column('Morph', Text)
+  dob = Column('Dob', Text)
+  picture = Column('Picture', Text)
 
-    def __init__(self, name="", vivarium_id=None, species=None, morph=None, dob=None, picture=None):
-      self.name = name
-      self.vivarium_id = int(vivarium_id)
-      self.species = str(species)
-      self.morph = str(morph)
-      self.dob = str(dob)
-      self.picture = str(picture)
-
-
-  class Physics(Base):
-    __tablename__ = 'Physics'
-
-    id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
-    animal_id = Column('Animal_id', Integer)
-    what = Column('What', Text)
-    value = Column('Value', Float)
-
-    def __init__(self, animal_id=None, what=None, value=None):
-      self.animal_id = int(animal_id)
-      self.what = str(what)
-      self.value = float(value)
+  def __init__(self, name="", vivarium_id=None, species=None, morph=None, dob=None, picture=None):
+    self.name = name
+    self.vivarium_id = vivarium_id
+    self.species = species
+    self.morph = morph
+    self.dob = dob
+    self.picture = picture
 
 
-  class Feedings(Base):
-    __tablename__ = 'Feedings'
+class Physics(Tables, Base):
+  __tablename__ = 'Physics'
 
-    id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
-    animal_id = Column('Animal_id', Integer)
-    what = Column('What', Text)
-    prekilled = Column('Prekilled', Boolean)
-    refused = Column('Refused', Boolean)
+  id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
+  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  animal_id = Column('Animal_id', Integer)
+  what = Column('What', Text)
+  value = Column('Value', Float)
 
-    def __init__(self, animal_id=None, what=None, prekilled=None, refused=None):
-      self.animal_id = int(animal_id)
-      self.what = str(what)
-      self.prekilled = bool(prekilled)
-      self.refused = bool(refused)
+  def __init__(self, animal_id=None, what=None, value=None):
+    self.animal_id = animal_id
+    self.what = what
+    self.value = value
 
 
-  class Notes(Base):
-    __tablename__ = 'Notes'
+class Feedings(Tables, Base):
+  __tablename__ = 'Feedings'
 
-    id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
-    animal_id = Column('Animal_id', Integer)
-    note = Column('Note', Text)
+  id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
+  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  animal_id = Column('Animal_id', Integer)
+  what = Column('What', Text)
+  prekilled = Column('Prekilled', Boolean)
+  refused = Column('Refused', Boolean)
 
-    def __init__(self, animal_id=None, note=None):
-      self.animal_id = int(animal_id)
-      self.note = str(note)
+  def __init__(self, animal_id=None, what=None, prekilled=None, refused=None):
+    self.animal_id = animal_id
+    self.what = what
+    self.prekilled = prekilled
+    self.refused = refused
 
 
-  class Sheddings(Base):
-    __tablename__ = 'Sheddings'
+class Notes(Tables, Base):
+  __tablename__ = 'Notes'
 
-    id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
-    animal_id = Column('Animal_id', Integer)
-    successful = Column('Successful', Boolean)
-    note = Column('Note', Text)
+  id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
+  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  animal_id = Column('Animal_id', Integer)
+  note = Column('Note', Text)
 
-    def __init__(self, animal_id=None, successful=None, note=None):
-      self.animal_id = int(animal_id)
-      self.successful = bool(successful)
-      self.note = str(note)
+  def __init__(self, animal_id=None, note=None):
+    self.animal_id = animal_id
+    self.note = note
+
+
+class Sheddings(Tables, Base):
+  __tablename__ = 'Sheddings'
+
+  id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
+  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  animal_id = Column('Animal_id', Integer)
+  successful = Column('Successful', Boolean)
+  note = Column('Note', Text)
+
+  def __init__(self, animal_id=None, successful=None, note=None):
+    self.animal_id = animal_id
+    self.successful = successful
+    self.note = note
