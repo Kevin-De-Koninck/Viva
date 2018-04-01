@@ -2,7 +2,7 @@ from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean
+from sqlalchemy import Column, Integer, Text, DateTime, Float, Boolean
 from sqlalchemy import MetaData, Table
 
 from logger import Logger
@@ -18,8 +18,6 @@ class SQL:
     self.password = Constants.LEMP.MYSQL_PWD
     self.port = Constants.LEMP.MYSQL_PORT
     self.db_name = Constants.LEMP.MYSQL_DATABASE
-
-    import ipdb; ipdb.set_trace()
 
     # Engines, on SQLAlchemy, are used to manage two crucial factors: Pools and Dialects
     self.engine = create_engine('mysql://%s:%s@localhost:%s/%s' % (self.username, self.password, str(self.port), self.db_name))
@@ -37,8 +35,8 @@ class SQL:
       metadata = MetaData(self.engine)
       Table(table_name, metadata, Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True), 
             Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now), Column('Vivarium_id', Integer),
-            Column('What', String(100)),
-            Column('Location', String(100)),
+            Column('What', Text),
+            Column('Location', Text),
             Column('Value', Float))
       metadata.create_all()
 
@@ -47,11 +45,11 @@ class SQL:
       metadata = MetaData(self.engine)
       Table(table_name, metadata,
             Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
-            Column('Name', String(100)),
+            Column('Name', Text),
             Column('Height', Float),
             Column('Width', Float),
             Column('Depth', Float),
-            Column('Picture', String(100)))
+            Column('Picture', Text))
       metadata.create_all()
 
     table_name = "Animal"
@@ -59,12 +57,12 @@ class SQL:
       metadata = MetaData(self.engine)
       Table(table_name, metadata,
             Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
-            Column('Name', String(100)),
+            Column('Name', Text),
             Column('Vivarium_id', Integer),
-            Column('Species', String(100)),
-            Column('Morph', String(100)),
-            Column('Dob', String(100)),
-            Column('Picture', String(100)))
+            Column('Species', Text),
+            Column('Morph', Text),
+            Column('Dob', Text),
+            Column('Picture', Text))
       metadata.create_all()
 
     table_name = "Physics"  # Length and Weight
@@ -73,7 +71,7 @@ class SQL:
       Table(table_name, metadata, Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
             Column('Animal_id', Integer),
             Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
-            Column('What', String(100)),
+            Column('What', Text),
             Column('Value', Float))
       metadata.create_all()
 
@@ -84,7 +82,7 @@ class SQL:
             Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
             Column('Animal_id', Integer),
             Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
-            Column('What', String(100)),
+            Column('What', Text),
             Column('Prekilled', Boolean),
             Column('Refused', Boolean))
       metadata.create_all()
@@ -96,7 +94,7 @@ class SQL:
             Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
             Column('Animal_id', Integer),
             Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
-            Column('Note', String(1000)))
+            Column('Note', Text))
       metadata.create_all()
 
     table_name = "Sheddings"
@@ -107,7 +105,7 @@ class SQL:
             Column('Animal_id', Integer),
             Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
             Column('Successful', Boolean),
-            Column('Note', String(1000)))
+            Column('Note', Text))
       metadata.create_all()
 
   # QUERY METHODS:
@@ -159,8 +157,8 @@ class Tables:
     id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
     timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
     vivarium_id = Column('Vivarium_id', Integer)
-    what = Column('What', String(100))
-    location =  Column('Location', String(100))
+    what = Column('What', Text)
+    location =  Column('Location', Text)
     value = Column('Value', Float)
 
     def __init__(self, vivarium_id=1, what="Temperature", location="Hot side", value=0.0):
@@ -174,11 +172,11 @@ class Tables:
     __tablename__ = 'Vivarium'
 
     id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    name = Column('Name', String(100))
+    name = Column('Name', Text)
     height = Column('Height', Float)
     width = Column('Width', Float)
     depth =  Column('Depth', Float)
-    picture = Column('Picture', String(100))
+    picture = Column('Picture', Text)
 
     def __init__(self, name="default", height=0.0, width=0.0, depth=0.0, picture=None):
       self.name = name
@@ -192,12 +190,12 @@ class Tables:
     __tablename__ = 'Animal'
 
     id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-    name = Column('Name', String(100))
+    name = Column('Name', Text)
     vivarium_id = Column('Vivarium_id', Integer)
-    species = Column('Species', String(100))
-    morph =  Column('Morph', String(100))
-    dob = Column('Dob', String(100))
-    picture = Column('Picture', String(100))
+    species = Column('Species', Text)
+    morph =  Column('Morph', Text)
+    dob = Column('Dob', Text)
+    picture = Column('Picture', Text)
 
     def __init__(self, name="default_name", vivarium_id=1, species="default", morph="default", dob="2018/02/24", picture=None):
       self.name = name
@@ -214,7 +212,7 @@ class Tables:
     id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
     timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
     animal_id = Column('Animal_id', Integer)
-    what = Column('What', String(100))
+    what = Column('What', Text)
     value = Column('Value', Float)
 
     def __init__(self, animal_id=1, what="Length", value=0.0):
@@ -229,7 +227,7 @@ class Tables:
     id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
     timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
     animal_id = Column('Animal_id', Integer)
-    what = Column('What', String(100))
+    what = Column('What', Text)
     prekilled = Column('Prekilled', Boolean)
     refused = Column('Refused', Boolean)
 
@@ -246,7 +244,7 @@ class Tables:
     id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
     timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
     animal_id = Column('Animal_id', Integer)
-    note = Column('Note', String(1000))
+    note = Column('Note', Text)
 
     def __init__(self, animal_id=1, note="default"):
       self.animal_id = animal_id
@@ -260,7 +258,7 @@ class Tables:
     timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
     animal_id = Column('Animal_id', Integer)
     successful = Column('Successful', Boolean)
-    note = Column('Note', String(1000))
+    note = Column('Note', Text)
 
     def __init__(self, animal_id=1, successful=True, note=""):
       self.animal_id = animal_id
