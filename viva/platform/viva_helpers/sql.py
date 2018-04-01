@@ -161,11 +161,11 @@ class Tables:
     location =  Column('Location', Text)
     value = Column('Value', Float)
 
-    def __init__(self, vivarium_id=1, what="Temperature", location="Hot side", value=0.0):
-      self.vivarium_id = vivarium_id
-      self.what = what
-      self.location = location
-      self.value = value
+    def __init__(self, vivarium_id=None, what=None, location=None, value=None):
+      self.vivarium_id = int(vivarium_id)
+      self.what = str(what)
+      self.location = str(location)
+      self.value = float(value)
 
 
   class Vivarium(Base):
@@ -178,12 +178,12 @@ class Tables:
     depth =  Column('Depth', Float)
     picture = Column('Picture', Text)
 
-    def __init__(self, name="default", height=0.0, width=0.0, depth=0.0, picture=None):
-      self.name = name
-      self.height = height
-      self.width = width
-      self.depth = depth
-      self.picture = picture
+    def __init__(self, name=None, height=None, width=None, depth=None, picture=None):
+      self.name = str(name)
+      self.height = float(height)
+      self.width = float(width)
+      self.depth = float(depth)
+      self.picture = str(picture)
 
 
   class Animal(Base):
@@ -197,13 +197,13 @@ class Tables:
     dob = Column('Dob', Text)
     picture = Column('Picture', Text)
 
-    def __init__(self, name="default_name", vivarium_id=1, species="default", morph="default", dob="2018/02/24", picture=None):
+    def __init__(self, name="", vivarium_id=None, species=None, morph=None, dob=None, picture=None):
       self.name = name
-      self.vivarium_id = vivarium_id
-      self.species = species
-      self.morph = morph
-      self.dob = dob
-      self.picture = picture
+      self.vivarium_id = int(vivarium_id)
+      self.species = str(species)
+      self.morph = str(morph)
+      self.dob = str(dob)
+      self.picture = str(picture)
 
 
   class Physics(Base):
@@ -215,10 +215,10 @@ class Tables:
     what = Column('What', Text)
     value = Column('Value', Float)
 
-    def __init__(self, animal_id=1, what="Length", value=0.0):
-      self.animal_id = animal_id
-      self.what = what
-      self.value = value
+    def __init__(self, animal_id=None, what=None, value=None):
+      self.animal_id = int(animal_id)
+      self.what = str(what)
+      self.value = float(value)
 
 
   class Feedings(Base):
@@ -231,11 +231,11 @@ class Tables:
     prekilled = Column('Prekilled', Boolean)
     refused = Column('Refused', Boolean)
 
-    def __init__(self, animal_id=1, what="Adult rat", prekilled=True, refused=False):
-      self.animal_id = animal_id
-      self.what = what
-      self.prekilled = prekilled
-      self.refused = refused
+    def __init__(self, animal_id=None, what=None, prekilled=None, refused=None):
+      self.animal_id = int(animal_id)
+      self.what = str(what)
+      self.prekilled = bool(prekilled)
+      self.refused = bool(refused)
 
 
   class Notes(Base):
@@ -246,9 +246,9 @@ class Tables:
     animal_id = Column('Animal_id', Integer)
     note = Column('Note', Text)
 
-    def __init__(self, animal_id=1, note="default"):
-      self.animal_id = animal_id
-      self.note = note
+    def __init__(self, animal_id=None, note=None):
+      self.animal_id = int(animal_id)
+      self.note = str(note)
 
 
   class Sheddings(Base):
@@ -260,7 +260,7 @@ class Tables:
     successful = Column('Successful', Boolean)
     note = Column('Note', Text)
 
-    def __init__(self, animal_id=1, successful=True, note=""):
-      self.animal_id = animal_id
-      self.successful = successful
-      self.note = note
+    def __init__(self, animal_id=None, successful=None, note=None):
+      self.animal_id = int(animal_id)
+      self.successful = bool(successful)
+      self.note = str(note)
