@@ -164,10 +164,40 @@ class Data(Command):
 
     return rc
 
+  def manage_note(self, args):
+    rc = self.SUCCESS
+
+    # Before creating a new entry, validate everything
+    animal_row = self.sql.query(Animal, name=args.note)
+    if animal_row:
+      id = animal_row.id
+    else:
+      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.note)
+      return self.FAILED
+
+    # Create note entry
+    self.sql.add_record(Notes(animal_id=id, note=args.text))
+    self.log_vivarium(Logger.SUCCESS, "Added note for animal '%s'." % args.note)
+
+    return rc
 
 
+  def manage_shedding(self, args):
+    rc = self.SUCCESS
 
+    # Before creating a new entry, validate everything
+    animal_row = self.sql.query(Animal, name=args.shedding)
+    if animal_row:
+      id = animal_row.id
+    else:
+      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.shedding)
+      return self.FAILED
 
+    # Create note entry
+    self.sql.add_record(Sheddings(animal_id=id, note=args.text, successful=args.successful))
+    self.log_vivarium(Logger.SUCCESS, "Added a shedding entry for animal '%s' (successful shedding: '%s')." % (args.shedding, str(args.successful)))
+
+    return rc
 
 
 
@@ -201,6 +231,10 @@ class Data(Command):
       rc |= self.manage_physics(args)
     elif args.feedings:
       rc |= self.manage_food(args)
+    elif args.note:
+      rc |= self.manage_note(args)
+    elif args.shedding:
+      rc |= self.manage_shedding(args)
 
     else:
       self.log_system(Logger.WARNING, "No arguments were provided.", write_logs=False)
@@ -244,6 +278,15 @@ class Data(Command):
     parser.add_argument("--food", metavar="WHAT", help="Assign what was eaten (e.g. 'Adult rat')")
     parser.add_argument("--prekilled", action="store_true", help="The diner was prekilled instead of alive")
     parser.add_argument("--refused", action="store_true", help="The animal refused to eat")
+
+    # Note: animal_id, note
+    parser.add_argument("--note", metavar="ANIMAL_NAME", help="Add a note for the animal")
+    parser.add_argument("--text", metavar="WHAT", help="The text of the note")
+
+    # Shedding: animal_id, note, successfull
+    parser.add_argument("--shedding", metavar="ANIMAL_NAME", help="Add a shedding entry for the animal")
+    parser.add_argument("--successful", action="store_true", help="The shedding was successful")
+
 
 
 
