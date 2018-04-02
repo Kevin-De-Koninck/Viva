@@ -154,16 +154,8 @@ class SQL:
 
 
 Base = declarative_base()
-class Tables:
 
-  # Deprecated
-  def get(self, arg):
-    try:
-        return eval("self.%s" % arg)
-    except:
-      return None
-
-class Sensors(Tables, Base):
+class Sensors(Base):
   __tablename__ = 'Sensors'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -181,7 +173,7 @@ class Sensors(Tables, Base):
     self.value = value
 
 
-class Vivarium(Tables, Base):
+class Vivarium(Base):
   __tablename__ = 'Vivarium'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -199,7 +191,7 @@ class Vivarium(Tables, Base):
     self.picture = picture
 
 
-class Animal(Tables, Base):
+class Animal(Base):
   __tablename__ = 'Animal'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -219,7 +211,7 @@ class Animal(Tables, Base):
     self.picture = picture
 
 
-class Physics(Tables, Base):
+class Physics(Base):
   __tablename__ = 'Physics'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -235,7 +227,7 @@ class Physics(Tables, Base):
     self.value = value
 
 
-class Feedings(Tables, Base):
+class Feedings(Base):
   __tablename__ = 'Feedings'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -253,7 +245,7 @@ class Feedings(Tables, Base):
     self.refused = refused
 
 
-class Notes(Tables, Base):
+class Notes(Base):
   __tablename__ = 'Notes'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
@@ -267,7 +259,7 @@ class Notes(Tables, Base):
     self.note = note
 
 
-class Sheddings(Tables, Base):
+class Sheddings(Base):
   __tablename__ = 'Sheddings'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
