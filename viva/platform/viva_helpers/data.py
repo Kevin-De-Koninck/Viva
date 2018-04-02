@@ -104,7 +104,7 @@ class Data(Command):
     try:
       value = float(args.value)
     except:
-      self.log_vivarium(Logger.ERROR, "Unable to parse the value, '%s' is nat a valid float." % str(args.height))
+      self.log_vivarium(Logger.ERROR, "Unable to parse the value, '%s' is nat a valid float." % str(args.value))
       rc |= self.FAILED
 
     vivarium_row = self.sql.query(Vivarium, name=args.sensor)
@@ -117,6 +117,33 @@ class Data(Command):
     # Create sensor measurement
     self.sql.add_record(Sensors(vivarium_id=id, what=args.what, location=args.location, value=value))
     self.log_vivarium(Logger.SUCCESS, "Added '%s' measurement (value: '%s') of sensor '%s'." % (args.what, str(args.value), args.location))
+
+    return rc
+
+  def manage_physics(self, args):
+    rc = self.SUCCESS
+
+    # Before creating a new entry, validate everything
+    if not (args.what and args.value):
+      self.log_animal(Logger.ERROR, "Not all required arguments were provided (--what/--value).", tag="physics")
+      return self.FAILED
+
+    try:
+      value = float(args.value)
+    except:
+      self.log_animal(Logger.ERROR, "Unable to parse the value, '%s' is nat a valid float." % str(args.value))
+      rc |= self.FAILED
+
+    animal_row = self.sql.query(Animal, name=args.physics)
+    if animal_row:
+      id = animal_row.id
+    else:
+      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.physics)
+      rc |= self.FAILED
+
+    # Create physics entry
+    self.sql.add_record(Physics(animal_id=id, what=args.what, value=value))
+    self.log_vivarium(Logger.SUCCESS, "Added '%s' measurement (value: '%s')." % (args.what, str(args.value)))
 
     return rc
 
@@ -135,8 +162,8 @@ class Data(Command):
   def log_vivarium(self, level, message, terminal_print=True, write_logs=True, tag="vivarium"):
     Logger(logfile=Logger.TERRARIUM, tag=tag, level=level, message=message, terminal_print=terminal_print, write_logs=write_logs)
 
-  def log_animal(self, level, message, terminal_print=True, write_logs=True):
-    Logger(logfile=Logger.REPTILE, tag="animal", level=level, message=message, terminal_print=terminal_print, write_logs=write_logs)
+  def log_animal(self, level, message, terminal_print=True, write_logs=True, tag="animal"):
+    Logger(logfile=Logger.REPTILE, tag=tag, level=level, message=message, terminal_print=terminal_print, write_logs=write_logs)
 
   def log_system(self, level, message, terminal_print=True, write_logs=True):
     Logger(logfile=Logger.VIVA, tag="data/SQL", level=level, message=message, terminal_print=terminal_print, write_logs=write_logs)
@@ -153,6 +180,8 @@ class Data(Command):
       rc |= self.manage_vivarium(args)
     elif args.sensor:
       rc |= self.manage_sensor(args)
+    elif args.physics:
+      rc |= self.manage_physics(args)
 
     else:
       self.log_system(Logger.WARNING, "No arguments were provided.", write_logs=False)
@@ -182,7 +211,12 @@ class Data(Command):
 
     # Sensors: vivarium_name, what, location, value
     parser.add_argument("--sensor", metavar="VIVARIUM_NAME", help="Add a sensor measurement to the database for the given vivarium name")
-    parser.add_argument("--what", metavar="WHAT", help="Assign what was measured (e.g. 'Temperature')")
+    parser.add_argument("--what", metavar="WHAT", help="Assign what was measured (e.g. 'Temperature', 'Body weight', ...)")
     parser.add_argument("--location", metavar="SENSOR_NAME", help="Assign the location of the measurement in the vivarium")
     parser.add_argument("--value", metavar="FLOAT", help="Assign/update the value")
+
+    # Physics: animal_id, what, value
+    parser.add_argument("--physics", metavar="ANIMAL_NAME", help="Add a body measurement of the animal")
+
+
 
