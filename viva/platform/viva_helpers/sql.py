@@ -71,7 +71,7 @@ class SQL:
       metadata = MetaData(self.engine)
       Table(table_name, metadata, Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
             Column('Animal_id', Integer),
-            Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
+            Column('Timestamp', DateTime, nullable=False),
             Column('What', Text),
             Column('Value', Float))
       metadata.create_all()
@@ -82,7 +82,7 @@ class SQL:
       Table(table_name, metadata,
             Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
             Column('Animal_id', Integer),
-            Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
+            Column('Timestamp', DateTime, nullable=False),
             Column('What', Text),
             Column('Prekilled', Boolean),
             Column('Refused', Boolean))
@@ -94,7 +94,7 @@ class SQL:
       Table(table_name, metadata,
             Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
             Column('Animal_id', Integer),
-            Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
+            Column('Timestamp', DateTime, nullable=False),
             Column('Note', Text))
       metadata.create_all()
 
@@ -104,7 +104,7 @@ class SQL:
       Table(table_name, metadata,
             Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True),
             Column('Animal_id', Integer),
-            Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now),
+            Column('Timestamp', DateTime, nullable=False),
             Column('Successful', Boolean),
             Column('Note', Text))
       metadata.create_all()
@@ -223,12 +223,13 @@ class Physics(Tables, Base):
   __tablename__ = 'Physics'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  timestamp = Column('Timestamp', DateTime, nullable=False)
   animal_id = Column('Animal_id', Integer)
   what = Column('What', Text)
   value = Column('Value', Float)
 
-  def __init__(self, animal_id=None, what=None, value=None):
+  def __init__(self, animal_id=None, what=None, value=None, timestamp=datetime.now()):
+    self.timestamp = timestamp
     self.animal_id = animal_id
     self.what = what
     self.value = value
@@ -238,13 +239,14 @@ class Feedings(Tables, Base):
   __tablename__ = 'Feedings'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  timestamp = Column('Timestamp', DateTime, nullable=False)
   animal_id = Column('Animal_id', Integer)
   what = Column('What', Text)
   prekilled = Column('Prekilled', Boolean)
   refused = Column('Refused', Boolean)
 
-  def __init__(self, animal_id=None, what=None, prekilled=None, refused=None):
+  def __init__(self, animal_id=None, what=None, prekilled=None, refused=None, timestamp=datetime.now()):
+    self.timestamp = timestamp
     self.animal_id = animal_id
     self.what = what
     self.prekilled = prekilled
@@ -255,11 +257,12 @@ class Notes(Tables, Base):
   __tablename__ = 'Notes'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  timestamp = Column('Timestamp', DateTime, nullable=False)
   animal_id = Column('Animal_id', Integer)
   note = Column('Note', Text)
 
-  def __init__(self, animal_id=None, note=None):
+  def __init__(self, animal_id=None, note=None, timestamp=datetime.now()):
+    self.timestamp = timestamp
     self.animal_id = animal_id
     self.note = note
 
@@ -268,12 +271,13 @@ class Sheddings(Tables, Base):
   __tablename__ = 'Sheddings'
 
   id = Column('Id', Integer, primary_key=True, nullable=False, autoincrement=True)
-  timestamp = Column('Timestamp', DateTime, nullable=False, onupdate=datetime.now)
+  timestamp = Column('Timestamp', DateTime, nullable=False)
   animal_id = Column('Animal_id', Integer)
   successful = Column('Successful', Boolean)
   note = Column('Note', Text)
 
-  def __init__(self, animal_id=None, successful=None, note=None):
+  def __init__(self, animal_id=None, successful=None, note=None, timestamp=datetime.now()):
+    self.timestamp = timestamp
     self.animal_id = animal_id
     self.successful = successful
     self.note = note
