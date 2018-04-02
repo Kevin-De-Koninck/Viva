@@ -139,11 +139,28 @@ class Data(Command):
       id = animal_row.id
     else:
       self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.physics)
-      rc |= self.FAILED
+      return self.FAILED
 
     # Create physics entry
     self.sql.add_record(Physics(animal_id=id, what=args.what, value=value))
     self.log_vivarium(Logger.SUCCESS, "Added '%s' measurement (value: '%s')." % (args.what, str(args.value)))
+
+    return rc
+
+  def manage_food(self, args):
+    rc = self.SUCCESS
+
+    # Before creating a new entry, validate everything
+    animal_row = self.sql.query(Animal, name=args.feedings)
+    if animal_row:
+      id = animal_row.id
+    else:
+      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.feedings)
+      return self.FAILED
+
+    # Create food entry
+    self.sql.add_record(Feedings(animal_id=id, what=args.food, prekilled=args.prekilled, refused=args.refused))
+    self.log_vivarium(Logger.SUCCESS, "Added food entry: '%s' (prekilled: '%s', refused: '%s')." % (args.food, str(args.prekilled), str(args.refused)))
 
     return rc
 
@@ -182,6 +199,8 @@ class Data(Command):
       rc |= self.manage_sensor(args)
     elif args.physics:
       rc |= self.manage_physics(args)
+    elif args.feedings:
+      rc |= self.manage_food(args)
 
     else:
       self.log_system(Logger.WARNING, "No arguments were provided.", write_logs=False)
@@ -194,6 +213,8 @@ class Data(Command):
   def add_arguments(self, common_parser, subparsers):
     epilog = ""
     parser = subparsers.add_parser("data", description="Add, update or remove Viva data.", epilog=epilog, parents=[common_parser])
+
+    #  TODO: ADD '--modify ID' to modify stuff like food and physics
 
     # Animal: name, vivarium, species, morph, dob, picture
     parser.add_argument("--animal", metavar="NAME", help="Add an animal to the database, or update if it already exists")
@@ -217,6 +238,14 @@ class Data(Command):
 
     # Physics: animal_id, what, value
     parser.add_argument("--physics", metavar="ANIMAL_NAME", help="Add a body measurement of the animal")
+
+    # Feedings: animal_id, what, prekilled, refused
+    parser.add_argument("--feedings", metavar="ANIMAL_NAME", help="Add a mealtime for the animal")
+    parser.add_argument("--food", metavar="WHAT", help="Assign what was eaten (e.g. 'Adult rat')")
+    parser.add_argument("--prekilled", action="store_true", help="The diner was prekilled instead of alive")
+    parser.add_argument("--refused", action="store_true", help="The animal refused to eat")
+
+
 
 
 
