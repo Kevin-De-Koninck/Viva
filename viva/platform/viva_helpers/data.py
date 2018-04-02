@@ -107,12 +107,9 @@ class Data(Command):
       self.log_vivarium(Logger.ERROR, "Unable to parse the value, '%s' is nat a valid float." % str(args.value))
       rc |= self.FAILED
 
-    vivarium_row = self.sql.query(Vivarium, name=args.sensor)
-    if vivarium_row:
-      id = vivarium_row.id
-    else:
-      self.log_vivarium(Logger.ERROR, "Vivarium '%s' does not exist." % args.sensor)
-      return self.FAILED
+    rc_, id = self.get_vivarium_id(args.sensor)
+    if rc_ == self.FAILED:
+      return rc_
 
     # Create sensor measurement
     self.sql.add_record(Sensors(vivarium_id=id, what=args.what, location=args.location, value=value))
@@ -134,12 +131,9 @@ class Data(Command):
       self.log_animal(Logger.ERROR, "Unable to parse the value, '%s' is nat a valid float." % str(args.value))
       rc |= self.FAILED
 
-    animal_row = self.sql.query(Animal, name=args.physics)
-    if animal_row:
-      id = animal_row.id
-    else:
-      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.physics)
-      return self.FAILED
+    rc_, id = self.get_animal_id(args.physics)
+    if rc_ == self.FAILED:
+      return rc_
 
     # Create physics entry
     self.sql.add_record(Physics(animal_id=id, what=args.what, value=value))
@@ -151,12 +145,9 @@ class Data(Command):
     rc = self.SUCCESS
 
     # Before creating a new entry, validate everything
-    animal_row = self.sql.query(Animal, name=args.feedings)
-    if animal_row:
-      id = animal_row.id
-    else:
-      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.feedings)
-      return self.FAILED
+    rc_, id = self.get_animal_id(args.feedings)
+    if rc_ == self.FAILED:
+      return rc_
 
     # Create food entry
     self.sql.add_record(Feedings(animal_id=id, what=args.food, prekilled=args.prekilled, refused=args.refused))
@@ -168,12 +159,9 @@ class Data(Command):
     rc = self.SUCCESS
 
     # Before creating a new entry, validate everything
-    animal_row = self.sql.query(Animal, name=args.note)
-    if animal_row:
-      id = animal_row.id
-    else:
-      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.note)
-      return self.FAILED
+    rc_, id = self.get_animal_id(args.note)
+    if rc_ == self.FAILED:
+      return rc_
 
     # Create note entry
     self.sql.add_record(Notes(animal_id=id, note=args.text))
@@ -186,18 +174,31 @@ class Data(Command):
     rc = self.SUCCESS
 
     # Before creating a new entry, validate everything
-    animal_row = self.sql.query(Animal, name=args.shedding)
-    if animal_row:
-      id = animal_row.id
-    else:
-      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % args.shedding)
-      return self.FAILED
+    rc_, id = self.get_animal_id(args.shedding)
+    if rc_ == self.FAILED:
+      return rc_
 
     # Create note entry
     self.sql.add_record(Sheddings(animal_id=id, note=args.text, successful=args.successful))
     self.log_vivarium(Logger.SUCCESS, "Added a shedding entry for animal '%s' (successful shedding: '%s')." % (args.shedding, str(args.successful)))
 
     return rc
+
+  def get_animal_id(self, animal):
+    row = self.sql.query(Animal, name=animal)
+    if row:
+      return self.SUCCESS, row.id
+    else:
+      self.log_animal(Logger.ERROR, "Animal '%s' does not exist." % animal)
+      return self.FAILED, None
+
+  def get_vivarium_id(self, vivarium):
+    row = self.sql.query(Vivarium, name=vivarium)
+    if row:
+      return self.SUCCESS, row.id
+    else:
+      self.log_animal(Logger.ERROR, "Vivarium '%s' does not exist." % vivarium)
+      return self.FAILED, None
 
 
 
