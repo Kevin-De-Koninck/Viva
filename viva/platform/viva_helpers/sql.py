@@ -124,11 +124,11 @@ class SQL:
   # Usage: add_entry(Tables.Sensors(vivarium_id=1, what="Temperature", location="Hot side", value=0.0))
   def add_record(self, record):
     self.session.add(record)
-    self.session.commit()
+    self.save()
 
   def add_records(self, records):
     self.session.add_all(records)
-    self.session.commit()
+    self.save()
 
   def save(self):
     self.session.commit()
@@ -144,11 +144,16 @@ class SQL:
   def query_all(self, table, **kwargs):
     return self.session.query(table).filter_by(**kwargs).all()
 
+  def delete_record_by_ID(self, table, ID):
+    record_to_delete = self.query(table, id=ID)
+    self.session.delete(record_to_delete)
+    self.save()
+
   def delete_records(self, table, **kwargs):
     records_to_delete = self.session.query(table).filter_by(**kwargs).all()
     for record in records_to_delete:
       self.session.delete(record)
-    self.session.commit()
+    self.save()
 
   # ToDo: https://stackoverflow.com/questions/17868743/doing-datetime-comparisons-in-filter-sqlalchemy
 
